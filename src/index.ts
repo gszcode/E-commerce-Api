@@ -1,27 +1,31 @@
 import 'dotenv/config'
-import express from 'express'
-import { sequelize } from './db'
 import cors from 'cors'
 import morgan from 'morgan'
+import express from 'express'
+import { syncDatabase } from './db'
 
+// Initialization
 const app = express()
 const PORT = process.env.PORT || 3001
 
+// Middlewares
 app.use(express.json())
 app.use(cors())
 app.use(morgan('dev'))
 
-import './models/User.schema'
+const server = app.listen(PORT, () => {
+  console.log(`Server is listening on port: ${PORT}`)
+  syncDatabase()
+})
 
-async function main() {
-  try {
-    await sequelize.sync({ force: true })
-    app.listen(PORT, () =>
-      console.error(`Connect to the database on port: ${PORT}`)
-    )
-  } catch (error) {
-    console.error(`Unable to connect to the database: ${error}`)
-  }
-}
+// Routes
+import userRoute from './routes/user.route'
+app.use('/api/v1/user', userRoute)
 
-main()
+// Errors handle
+import { errorHandler } from './middlewares/error.handle'
+import { invalidPathHandler } from './middlewares/error.invalidpath'
+app.use(errorHandler)
+app.use(invalidPathHandler)
+
+export { server, app }
