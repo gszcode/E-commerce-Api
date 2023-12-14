@@ -9,5 +9,5 @@ export const errorHandler = (
   console.log(`error ${error.message}`)
   const status = error.status || 400
 
-  return res.status(status).json({ message: error.message })
+  return res.status(status).json({ message: error.message, data: null })
 }

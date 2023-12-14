@@ -13,34 +13,58 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const supertest_1 = __importDefault(require("supertest"));
-const app_1 = __importDefault(require("../app"));
+const index_1 = require("../index");
 const db_1 = require("../db");
-const User_schema_1 = require("../models/User.schema");
+const URL = '/api/v1/user';
+const request = (0, supertest_1.default)(index_1.app);
 beforeAll(() => __awaiter(void 0, void 0, void 0, function* () {
     yield db_1.sequelize.sync({ force: true });
 }));
-describe('Registro de Usuarios', () => {
-    test('debería registrar un nuevo usuario con éxito', () => __awaiter(void 0, void 0, void 0, function* () {
-        const newUser = {
-            first_name: 'John',
-            last_name: 'Doe',
-            username: 'johndoe',
-            email: 'john@example.com',
-            password: 'securepassword'
-        };
-        const response = yield (0, supertest_1.default)(app_1.default).post('/api/register').send(newUser);
-        expect(response.status).toBe(201);
+describe('User Register', () => {
+    beforeAll(() => __awaiter(void 0, void 0, void 0, function* () {
+        yield db_1.sequelize.sync({ force: true });
     }));
-    test('debería manejar errores al registrar un usuario existente', () => __awaiter(void 0, void 0, void 0, function* () {
-        const user = {
-            first_name: 'John',
-            last_name: 'Doe',
-            username: 'johndoe',
-            email: 'john@example.com',
-            password: 'securepassword'
-        };
-        yield User_schema_1.User.create(user);
-        const response = yield (0, supertest_1.default)(app_1.default).post('/api/register').send(user);
+    const user = {
+        first_name: 'John',
+        last_name: 'Doe',
+        username: 'johndoe',
+        email: 'john.doe@example.com',
+        password: 'password123'
+    };
+    test('should register a new user', () => __awaiter(void 0, void 0, void 0, function* () {
+        const response = yield request.post(`${URL}/register`).send(user);
+        expect(response.status).toBe(201);
+        expect(response.body.message).toBe('User created successfully');
+        expect(response.body.data).toHaveProperty('id');
+    }));
+    test('should not register a user existent', () => __awaiter(void 0, void 0, void 0, function* () {
+        yield request.post(`${URL}/register`).send(user);
+        const response = yield request.post(`${URL}/register`).send(user);
         expect(response.status).toBe(400);
+        expect(response.body.message).toBe('User already exists');
+        expect(response.body.data).toBe(null);
     }));
 });
+describe('User Login', () => {
+    beforeAll(() => __awaiter(void 0, void 0, void 0, function* () {
+        yield db_1.sequelize.sync({ force: true });
+    }));
+    const user = {
+        first_name: 'John',
+        last_name: 'Doe',
+        username: 'johndoe',
+        email: 'john.doe@example.com',
+        password: 'password123'
+    };
+    test('should login a user', () => __awaiter(void 0, void 0, void 0, function* () {
+        yield request.post(`${URL}/register`).send(user);
+        const login = { email: user.email, password: user.password };
+        const response = yield request.post(`${URL}/login`).send(login);
+        expect(response.status).toBe(200);
+        expect(response.body.message).toBe('Login successful');
+    }));
+});
+afterAll(() => __awaiter(void 0, void 0, void 0, function* () {
+    yield db_1.sequelize.close();
+    index_1.server.close();
+}));
