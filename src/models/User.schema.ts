@@ -1,7 +1,8 @@
 import { sequelize } from '../db'
-import { DataTypes } from 'sequelize'
+import { DataTypes, Model } from 'sequelize'
+import { User } from '../interfaces/user.interface'
 
-export const UserSchema = sequelize.define('user', {
+export const UserSchema = sequelize.define<Model<User>>('user', {
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
