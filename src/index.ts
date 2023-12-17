@@ -19,8 +19,8 @@ const server = app.listen(PORT, () => {
 })
 
 // Routes
-import userRoute from './routes/user.route'
-app.use('/api/v1/user', userRoute)
+import authRoute from './routes/auth.route'
+app.use('/api/v1/auth', authRoute)
 
 // Errors handle
 import { errorHandler } from './middlewares/error.handle'
