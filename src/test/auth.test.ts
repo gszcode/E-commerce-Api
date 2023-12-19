@@ -3,29 +3,21 @@ import { sequelize } from '../db'
 import { registerUser } from './utils/registerUser'
 import { loginUser } from './utils/loginUser'
 
-const user = {
-  first_name: 'John',
-  last_name: 'Doe',
-  username: 'johndoe',
-  email: 'john.doe@example.com',
-  password: 'password123'
-}
-
 describe('User Register', () => {
   beforeAll(async () => {
     await sequelize.sync({ force: true })
   })
 
   test('should register a new user', async () => {
-    const response = await registerUser(user)
+    const response = await registerUser()
 
     expect(response.status).toBe(201)
     expect(response.body.message).toBe('User created successfully')
   })
 
   test('should not register a user existent', async () => {
-    await registerUser(user)
-    const response = await registerUser(user)
+    await registerUser()
+    const response = await registerUser()
 
     expect(response.status).toBe(400)
     expect(response.body.message).toBe('User already exists')
@@ -36,11 +28,11 @@ describe('User Register', () => {
 describe('User Login', () => {
   beforeAll(async () => {
     await sequelize.sync({ force: true })
-    await registerUser(user)
+    await registerUser()
   })
 
   test('should login a user', async () => {
-    const response = await loginUser(user.email, user.password)
+    const response = await loginUser('john.doe@example.com', 'password123')
 
     expect(response.status).toBe(200)
     expect(response.body.message).toBe('Login successful')

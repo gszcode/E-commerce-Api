@@ -1,40 +1,42 @@
-// import supertest from 'supertest'
-// import { app, server } from '../index'
-// import { sequelize } from '../db'
+import { app, server } from '../index'
+import { sequelize } from '../db'
+import { registerUser } from './utils/registerUser'
+import { loginUser } from './utils/loginUser'
+import supertest from 'supertest'
 
-// const request = supertest(app)
-// const URL_AUTH = '/api/v1/auth'
-// const URL_USER = '/api/v1/user'
+const request = supertest(app)
+const URL_USER = '/api/v1/user'
 
-// describe.skip('My Account', () => {
-//   beforeAll(async () => {
-//     await sequelize.sync({ force: true })
-//   })
+describe('My Account', () => {
+  beforeAll(async () => {
+    await sequelize.sync({ force: true })
+  })
 
-//   const user = {
-//     first_name: 'John',
-//     last_name: 'Doe',
-//     username: 'johndoe',
-//     email: 'john.doe@example.com',
-//     password: 'password123'
-//   }
+  test('I should see my data', async () => {
+    await registerUser()
+    const responseLogin = await loginUser('john.doe@example.com', 'password123')
+    const token = responseLogin.body.token
 
-//   test('I should see my data', async () => {
-//     await request.post(`${URL_AUTH}/register`).send(user)
-//     const login = { email: user.email, password: user.password }
-//     const responseLogin = await request.post(`${URL_AUTH}/login`).send(login)
-//     const token = responseLogin.body.token
+    const response = await request
+      .get(`${URL_USER}/account`)
+      .set('Authorization', `${token}`)
 
-//     const response = await request
-//       .get(`${URL_USER}/account`)
-//       .set('Authorization', `Bearer ${token}`)
+    expect(response.status).toBe(200)
+    expect(response.body.data.email).toBe('john.doe@example.com')
+  })
 
-//     expect(response.status).toBe(200)
-//     expect(response.body.email).toBe(user.email)
-//   })
-// })
+  test('I should not see my data without token', async () => {
+    await registerUser()
+    await loginUser('john.doe@example.com', 'password123')
 
-// afterAll(async () => {
-//   await sequelize.close()
-//   server.close()
-// })
+    const response = await request.get(`${URL_USER}/account`)
+
+    expect(response.status).toBe(401)
+    expect(response.body.message).toBe('Authentication token is required')
+  })
+})
+
+afterAll(async () => {
+  await sequelize.close()
+  server.close()
+})
