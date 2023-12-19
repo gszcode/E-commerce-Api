@@ -1,7 +1,8 @@
 import { Router } from 'express'
-import { myAccount } from '../controllers/user.ctrl'
+import { account } from '../controllers/user.ctrl'
+import { verifyToken } from '../middlewares/verify.token'
 const router = Router()
 
-router.get('/my-account', myAccount)
+router.get('/account', verifyToken, account)
 
 export default router
