@@ -5,6 +5,7 @@ import bcrypt from 'bcrypt'
 import { Auth } from '../interfaces/auth.interface'
 import jwt from 'jsonwebtoken'
 import { validationResult } from 'express-validator'
+import generateAccessToken from '../utils/generateAccessToken'
 
 const register = async (req: Request, res: Response, next: NextFunction) => {
   const result = validationResult(req)
@@ -51,9 +52,7 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
     )
     if (!passwordMatch) throw new Error('Invalid password')
 
-    const token = jwt.sign({ email }, process.env.JWT_SECRET!, {
-      expiresIn: '1d'
-    })
+    const token = generateAccessToken(email)
 
     return res.status(200).json({
       message: 'Login successful',
