@@ -4,8 +4,8 @@ import { UserSchema } from '../models/User.schema'
 const account = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = await UserSchema.findOne({
-      where: { email: req.email },
-      attributes: { exclude: ['id', 'password', 'craetedAt', 'updatedAt'] }
+      where: { email: req['email'] },
+      attributes: { exclude: ['id', 'password', 'createdAt', 'updatedAt'] }
     })
 
     if (!user) throw new Error('User does not exist')
