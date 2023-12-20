@@ -1,15 +1,24 @@
-import { Sequelize } from 'sequelize'
+import { Dialect, Sequelize } from 'sequelize'
 
 const isTestEnvironment = process.env.NODE_ENV === 'test'
+const {
+  DATABASE,
+  DATABASE_TEST,
+  DATABASE_USERNAME,
+  DATABASE_PASSWORD,
+  DATABASE_HOST,
+  DATABASE_DIALECT,
+  DATABASE_PORT
+} = process.env
 
 export const sequelize = new Sequelize(
-  isTestEnvironment ? 'ecommerce_test' : 'ecommerce',
-  'postgres',
-  'password',
+  isTestEnvironment ? DATABASE_TEST! : DATABASE!,
+  DATABASE_USERNAME!,
+  DATABASE_PASSWORD,
   {
-    host: 'localhost',
-    dialect: 'postgres',
-    port: 5434
+    host: DATABASE_HOST,
+    dialect: DATABASE_DIALECT! as Dialect,
+    port: parseInt(DATABASE_PORT!)
   }
 )
 
