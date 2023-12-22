@@ -23,7 +23,9 @@ const server = app.listen(PORT, () => {
 });
 exports.server = server;
 // Routes
+const auth_route_1 = __importDefault(require("./routes/auth.route"));
 const user_route_1 = __importDefault(require("./routes/user.route"));
+app.use('/api/v1/auth', auth_route_1.default);
 app.use('/api/v1/user', user_route_1.default);
 // Errors handle
 const error_handle_1 = require("./middlewares/error.handle");

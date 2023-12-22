@@ -8,21 +8,23 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.account = void 0;
-const User_schema_1 = require("../models/User.schema");
-const account = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const user = yield User_schema_1.UserSchema.findOne({
-            where: { email: req['email'] },
-            attributes: { exclude: ['id', 'password', 'createdAt', 'updatedAt'] }
-        });
-        if (!user)
-            throw new Error('User does not exist');
-        return res.status(200).json({ data: user });
-    }
-    catch (error) {
-        next(error);
-    }
+exports.registerUser = void 0;
+const supertest_1 = __importDefault(require("supertest"));
+const index_1 = require("../../index");
+const request = (0, supertest_1.default)(index_1.app);
+const URL_AUTH = '/api/v1/auth';
+const user = {
+    first_name: 'John',
+    last_name: 'Doe',
+    username: 'johndoe',
+    email: 'john.doe@example.com',
+    password: 'password123'
+};
+const registerUser = () => __awaiter(void 0, void 0, void 0, function* () {
+    return request.post(`${URL_AUTH}/register`).send(user);
 });
-exports.account = account;
+exports.registerUser = registerUser;

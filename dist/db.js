@@ -12,10 +12,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.syncDatabase = exports.sequelize = void 0;
 const sequelize_1 = require("sequelize");
 const isTestEnvironment = process.env.NODE_ENV === 'test';
-exports.sequelize = new sequelize_1.Sequelize(isTestEnvironment ? 'ecommerce_test' : 'ecommerce', 'postgres', 'password', {
-    host: 'localhost',
-    dialect: 'postgres',
-    port: 5434
+const { DATABASE, DATABASE_TEST, DATABASE_USERNAME, DATABASE_PASSWORD, DATABASE_HOST, DATABASE_DIALECT, DATABASE_PORT } = process.env;
+exports.sequelize = new sequelize_1.Sequelize(isTestEnvironment ? DATABASE_TEST : DATABASE, DATABASE_USERNAME, DATABASE_PASSWORD, {
+    host: DATABASE_HOST,
+    dialect: DATABASE_DIALECT,
+    port: parseInt(DATABASE_PORT)
 });
 function syncDatabase() {
     return __awaiter(this, void 0, void 0, function* () {

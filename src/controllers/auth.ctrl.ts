@@ -3,7 +3,6 @@ import { UserSchema } from '../models/User.schema'
 import { User } from '../interfaces/user.interface'
 import bcrypt from 'bcrypt'
 import { Auth } from '../interfaces/auth.interface'
-import jwt from 'jsonwebtoken'
 import { validationResult } from 'express-validator'
 import generateAccessToken from '../utils/generateAccessToken'
 
