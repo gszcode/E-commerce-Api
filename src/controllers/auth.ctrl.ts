@@ -5,6 +5,7 @@ import bcrypt from 'bcrypt'
 import { Auth } from '../interfaces/auth.interface'
 import { validationResult } from 'express-validator'
 import generateAccessToken from '../utils/generateAccessToken'
+import { CustomError } from '../interfaces/error.interface'
 
 const register = async (req: Request, res: Response, next: NextFunction) => {
   const result = validationResult(req)
@@ -18,7 +19,7 @@ const register = async (req: Request, res: Response, next: NextFunction) => {
 
   try {
     let user = await UserSchema.findOne({ where: { email } })
-    if (user) throw new Error('User already exists')
+    if (user) throw new CustomError('User already exists', 400)
 
     const passwordHash = await bcrypt.hash(password, 10)
 
@@ -43,13 +44,13 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
 
   try {
     const user = await UserSchema.findOne({ where: { email } })
-    if (!user) throw new Error('Invalid credentials')
+    if (!user) throw new CustomError('Invalid credentials', 400)
 
     const passwordMatch = await bcrypt.compare(
       password,
       user.getDataValue('password')
     )
-    if (!passwordMatch) throw new Error('Invalid password')
+    if (!passwordMatch) throw new CustomError('Invalid credentials', 400)
 
     const token = generateAccessToken(email)
 

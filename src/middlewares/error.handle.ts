@@ -1,4 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
+import { CustomError } from '../interfaces/error.interface'
 
 export const errorHandler = (
   error: any,
@@ -6,16 +7,11 @@ export const errorHandler = (
   res: Response,
   next: NextFunction
 ) => {
-  console.log(`error handler ${error.message}`)
-  console.log(`error handler ${error.status}`)
-  const status = error.status || 500
+  console.error(error.message)
 
-  if (error.message === 'User already exists')
-    return res.status(status).json({ message: error.message })
-  if (error.message === 'Invalid credentials')
-    return res.status(status).json({ message: error.message, token: null })
-  if (error.message === 'User does not exist')
-    return res.status(status).json({ message: error.message, data: null })
-
-  return res.status(status).json({ message: 'A server problem occurred' })
+  if (error instanceof CustomError) {
+    res.status(error.statusCode).json({ error: error.message })
+  } else {
+    res.status(500).json({ error: 'An internal error occurred' })
+  }
 }

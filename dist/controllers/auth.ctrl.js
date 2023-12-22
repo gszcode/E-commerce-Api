@@ -17,6 +17,7 @@ const User_schema_1 = require("../models/User.schema");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const express_validator_1 = require("express-validator");
 const generateAccessToken_1 = __importDefault(require("../utils/generateAccessToken"));
+const error_interface_1 = require("../interfaces/error.interface");
 const register = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const result = (0, express_validator_1.validationResult)(req);
     if (!result.isEmpty()) {
@@ -28,7 +29,7 @@ const register = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
     try {
         let user = yield User_schema_1.UserSchema.findOne({ where: { email } });
         if (user)
-            throw new Error('User already exists');
+            throw new error_interface_1.CustomError('User already exists', 400);
         const passwordHash = yield bcrypt_1.default.hash(password, 10);
         user = yield User_schema_1.UserSchema.create({
             first_name,
@@ -51,10 +52,10 @@ const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
     try {
         const user = yield User_schema_1.UserSchema.findOne({ where: { email } });
         if (!user)
-            throw new Error('Invalid credentials');
+            throw new error_interface_1.CustomError('Invalid credentials', 400);
         const passwordMatch = yield bcrypt_1.default.compare(password, user.getDataValue('password'));
         if (!passwordMatch)
-            throw new Error('Invalid password');
+            throw new error_interface_1.CustomError('Invalid credentials', 400);
         const token = (0, generateAccessToken_1.default)(email);
         return res.status(200).json({
             message: 'Login successful',
