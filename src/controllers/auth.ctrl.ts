@@ -6,6 +6,7 @@ import { Auth } from '../interfaces/auth.interface'
 import { validationResult } from 'express-validator'
 import generateAccessToken from '../utils/generateAccessToken'
 import { CustomError } from '../interfaces/error.interface'
+import { generateSecureCookie } from '../utils/generateSecureCookie'
 
 const register = async (req: Request, res: Response, next: NextFunction) => {
   const result = validationResult(req)
@@ -53,10 +54,10 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
     if (!passwordMatch) throw new CustomError('Invalid credentials', 400)
 
     const token = generateAccessToken(email)
+    generateSecureCookie(res, token)
 
     return res.status(200).json({
-      message: 'Login successful',
-      token
+      message: 'Login successful'
     })
   } catch (error) {
     next(error)
