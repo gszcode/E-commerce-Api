@@ -15,7 +15,7 @@ export const verifyToken = (
   next: NextFunction
 ) => {
   try {
-    let token = req.headers['authorization']
+    let token = req.cookies.token
 
     if (!token) {
       return res
@@ -23,7 +23,6 @@ export const verifyToken = (
         .json({ message: 'Authentication token is required' })
     }
 
-    token = token.split(' ')[1]
     const decoded = jwt.verify(token, process.env.JWT_SECRET!)
 
     if (typeof decoded === 'string') req.email = decoded

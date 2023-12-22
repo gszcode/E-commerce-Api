@@ -7,13 +7,12 @@ exports.verifyToken = void 0;
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const verifyToken = (req, res, next) => {
     try {
-        let token = req.headers['authorization'];
+        let token = req.cookies.token;
         if (!token) {
             return res
                 .status(401)
                 .json({ message: 'Authentication token is required' });
         }
-        token = token.split(' ')[1];
         const decoded = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET);
         if (typeof decoded === 'string')
             req.email = decoded;
