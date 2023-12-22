@@ -1,11 +1,12 @@
 import { Response } from 'express'
-import { serialize } from 'cookie'
 
 export const generateSecureCookie = (res: Response, token: string) => {
+  const MODE = process.env.NODE_ENV === 'production'
+
   const cookieOptions = {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production'
+    secure: MODE
   }
 
-  res.setHeader('Set-Cookie', serialize('token', token, cookieOptions))
+  res.cookie('token', token, cookieOptions)
 }

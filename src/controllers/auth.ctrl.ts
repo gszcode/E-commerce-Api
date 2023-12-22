@@ -44,7 +44,9 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
   const { email, password }: Auth = req.body
 
   try {
-    const user = await UserSchema.findOne({ where: { email } })
+    const user = await UserSchema.findOne({
+      where: { email }
+    })
     if (!user) throw new CustomError('Invalid credentials', 400)
 
     const passwordMatch = await bcrypt.compare(
@@ -56,8 +58,16 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
     const token = generateAccessToken(email)
     generateSecureCookie(res, token)
 
+    const userData = {
+      username: user.getDataValue('username'),
+      first_name: user.getDataValue('first_name'),
+      last_name: user.getDataValue('last_name'),
+      email: user.getDataValue('email')
+    }
+
     return res.status(200).json({
-      message: 'Login successful'
+      message: 'Login successful',
+      user: userData
     })
   } catch (error) {
     next(error)

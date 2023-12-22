@@ -18,6 +18,7 @@ const bcrypt_1 = __importDefault(require("bcrypt"));
 const express_validator_1 = require("express-validator");
 const generateAccessToken_1 = __importDefault(require("../utils/generateAccessToken"));
 const error_interface_1 = require("../interfaces/error.interface");
+const generateSecureCookie_1 = require("../utils/generateSecureCookie");
 const register = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const result = (0, express_validator_1.validationResult)(req);
     if (!result.isEmpty()) {
@@ -50,16 +51,25 @@ exports.register = register;
 const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
     try {
-        const user = yield User_schema_1.UserSchema.findOne({ where: { email } });
+        const user = yield User_schema_1.UserSchema.findOne({
+            where: { email }
+        });
         if (!user)
             throw new error_interface_1.CustomError('Invalid credentials', 400);
         const passwordMatch = yield bcrypt_1.default.compare(password, user.getDataValue('password'));
         if (!passwordMatch)
             throw new error_interface_1.CustomError('Invalid credentials', 400);
         const token = (0, generateAccessToken_1.default)(email);
+        (0, generateSecureCookie_1.generateSecureCookie)(res, token);
+        const userData = {
+            username: user.getDataValue('username'),
+            first_name: user.getDataValue('first_name'),
+            last_name: user.getDataValue('last_name'),
+            email: user.getDataValue('email')
+        };
         return res.status(200).json({
             message: 'Login successful',
-            token
+            user: userData
         });
     }
     catch (error) {
