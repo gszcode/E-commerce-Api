@@ -15,7 +15,7 @@ export const verifyToken = (
   next: NextFunction
 ) => {
   try {
-    let token = req.cookies.token
+    let { token } = req.cookies
 
     if (!token) {
       return res
@@ -23,10 +23,9 @@ export const verifyToken = (
         .json({ message: 'Authentication token is required' })
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET!)
+    const { user } = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload
+    req.email = user
 
-    if (typeof decoded === 'string') req.email = decoded
-    else req.email = decoded.user
     next()
   } catch (error) {
     return res.status(403).json({ message: 'Invalid token' })
