@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const generateAccessToken = (user) => {
     const token = jsonwebtoken_1.default.sign({ user }, process.env.JWT_SECRET, {
-        expiresIn: 60 * 15
+        expiresIn: '1d'
     });
     return token;
 };

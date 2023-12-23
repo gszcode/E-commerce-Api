@@ -12,13 +12,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.login = exports.register = void 0;
+exports.verifyToken = exports.logout = exports.login = exports.register = void 0;
 const User_schema_1 = require("../models/User.schema");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const express_validator_1 = require("express-validator");
 const generateAccessToken_1 = __importDefault(require("../utils/generateAccessToken"));
 const error_interface_1 = require("../interfaces/error.interface");
 const generateSecureCookie_1 = require("../utils/generateSecureCookie");
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const register = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const result = (0, express_validator_1.validationResult)(req);
     if (!result.isEmpty()) {
@@ -77,3 +78,36 @@ const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
     }
 });
 exports.login = login;
+const logout = (req, res, next) => {
+    try {
+        return res
+            .cookie('token', '', {
+            expires: new Date(0)
+        })
+            .sendStatus(200);
+    }
+    catch (error) {
+        next(error);
+    }
+};
+exports.logout = logout;
+const verifyToken = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        let { token } = req.cookies;
+        if (!token) {
+            return res
+                .status(401)
+                .json({ message: 'Authentication token is required' });
+        }
+        const { user } = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET);
+        const userFound = yield User_schema_1.UserSchema.findOne({
+            where: { email: user },
+            attributes: { exclude: ['id', 'password', 'createdAt', 'updatedAt'] }
+        });
+        return res.status(200).json({ data: userFound });
+    }
+    catch (error) {
+        return res.status(403).json({ message: 'Invalid token' });
+    }
+});
+exports.verifyToken = verifyToken;

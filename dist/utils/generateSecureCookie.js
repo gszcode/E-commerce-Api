@@ -4,7 +4,7 @@ exports.generateSecureCookie = void 0;
 const generateSecureCookie = (res, token) => {
     const MODE = process.env.NODE_ENV === 'production';
     const cookieOptions = {
-        httpOnly: true,
+        httpOnly: MODE,
         secure: MODE
     };
     res.cookie('token', token, cookieOptions);

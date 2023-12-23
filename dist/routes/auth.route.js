@@ -7,4 +7,6 @@ const login_validation_1 = require("../middlewares/login.validation");
 const router = (0, express_1.Router)();
 router.post('/register', register_validation_1.registerValidation, auth_ctrl_1.register);
 router.post('/login', login_validation_1.loginValidation, auth_ctrl_1.login);
+router.post('/logout', auth_ctrl_1.logout);
+router.get('/verify-token', auth_ctrl_1.verifyToken);
 exports.default = router;

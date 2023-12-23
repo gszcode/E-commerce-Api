@@ -15,8 +15,11 @@ const app = (0, express_1.default)();
 exports.app = app;
 const PORT = process.env.PORT || 3001;
 // Middlewares
+app.use((0, cors_1.default)({
+    origin: 'http://localhost:5173',
+    credentials: true
+}));
 app.use(express_1.default.json());
-app.use((0, cors_1.default)());
 app.use((0, morgan_1.default)('dev'));
 app.use((0, cookie_parser_1.default)());
 const server = app.listen(PORT, () => {
