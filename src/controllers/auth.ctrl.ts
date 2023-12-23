@@ -7,6 +7,7 @@ import { validationResult } from 'express-validator'
 import generateAccessToken from '../utils/generateAccessToken'
 import { CustomError } from '../interfaces/error.interface'
 import { generateSecureCookie } from '../utils/generateSecureCookie'
+import jwt, { JwtPayload } from 'jsonwebtoken'
 
 const register = async (req: Request, res: Response, next: NextFunction) => {
   const result = validationResult(req)
@@ -74,4 +75,38 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
   }
 }
 
-export { register, login }
+const logout = (req: Request, res: Response, next: NextFunction) => {
+  try {
+    return res
+      .cookie('token', '', {
+        expires: new Date(0)
+      })
+      .sendStatus(200)
+  } catch (error) {
+    next(error)
+  }
+}
+
+const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let { token } = req.cookies
+
+    if (!token) {
+      return res
+        .status(401)
+        .json({ message: 'Authentication token is required' })
+    }
+
+    const { user } = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload
+    const userFound = await UserSchema.findOne({
+      where: { email: user },
+      attributes: { exclude: ['id', 'password', 'createdAt', 'updatedAt'] }
+    })
+
+    return res.status(200).json({ data: userFound })
+  } catch (error) {
+    return res.status(403).json({ message: 'Invalid token' })
+  }
+}
+
+export { register, login, logout, verifyToken }
