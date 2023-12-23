@@ -4,7 +4,7 @@ export const generateSecureCookie = (res: Response, token: string) => {
   const MODE = process.env.NODE_ENV === 'production'
 
   const cookieOptions = {
-    httpOnly: true,
+    httpOnly: MODE,
     secure: MODE
   }
 
