@@ -7,3 +7,7 @@ export const loginUser = async (email: string, password: string) => {
   const login = { email, password }
   return request.post(`${URL_AUTH}/login`).send(login)
 }
+
+export const logoutUser = async () => {
+  return request.post(`${URL_AUTH}/logout`)
+}
