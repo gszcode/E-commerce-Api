@@ -30,8 +30,10 @@ exports.server = server;
 // Routes
 const auth_route_1 = __importDefault(require("./routes/auth.route"));
 const user_route_1 = __importDefault(require("./routes/user.route"));
+const contact_route_1 = __importDefault(require("./routes/contact.route"));
 app.use('/api/v1/auth', auth_route_1.default);
 app.use('/api/v1/user', user_route_1.default);
+app.use('/api/v1/contact', contact_route_1.default);
 // Errors handle
 const error_handle_1 = require("./middlewares/error.handle");
 const error_invalidpath_1 = require("./middlewares/error.invalidpath");

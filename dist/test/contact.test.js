@@ -12,17 +12,30 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.logoutUser = exports.loginUser = void 0;
+const index_1 = require("../index");
+const db_1 = require("../db");
 const supertest_1 = __importDefault(require("supertest"));
-const index_1 = require("../../index");
 const request = (0, supertest_1.default)(index_1.app);
-const URL_AUTH = '/api/v1/auth';
-const loginUser = (email, password) => __awaiter(void 0, void 0, void 0, function* () {
-    const login = { email, password };
-    return request.post(`${URL_AUTH}/login`).send(login);
+const URL_CONTACT = '/api/v1/contact';
+describe('CONCTACT', () => {
+    beforeAll(() => __awaiter(void 0, void 0, void 0, function* () {
+        yield db_1.sequelize.sync({ force: true });
+    }));
+    const message = {
+        first_name: 'test',
+        last_name: 'test',
+        email: 'test@test.com',
+        phone: '000000000000',
+        affair: 'test',
+        message: 'message test'
+    };
+    test('send message for contact form', () => __awaiter(void 0, void 0, void 0, function* () {
+        const response = yield request.post(URL_CONTACT).send(message);
+        expect(response.status).toBe(200);
+        expect(response.body.message).toBe('Email enviado correctamente');
+    }));
 });
-exports.loginUser = loginUser;
-const logoutUser = () => __awaiter(void 0, void 0, void 0, function* () {
-    return request.post(`${URL_AUTH}/logout`);
-});
-exports.logoutUser = logoutUser;
+afterAll(() => __awaiter(void 0, void 0, void 0, function* () {
+    yield db_1.sequelize.close();
+    index_1.server.close();
+}));

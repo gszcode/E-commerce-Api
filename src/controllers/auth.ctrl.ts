@@ -68,7 +68,8 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
 
     return res.status(200).json({
       message: 'Login successful',
-      user: userData
+      user: userData,
+      token
     })
   } catch (error) {
     next(error)
@@ -91,11 +92,7 @@ const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
   try {
     let { token } = req.cookies
 
-    if (!token) {
-      return res
-        .status(401)
-        .json({ message: 'Authentication token is required' })
-    }
+    if (!token) throw new CustomError('Authentication token is required', 401)
 
     const { user } = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload
     const userFound = await UserSchema.findOne({
@@ -105,7 +102,7 @@ const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
 
     return res.status(200).json({ data: userFound })
   } catch (error) {
-    return res.status(403).json({ message: 'Invalid token' })
+    next(error)
   }
 }
 

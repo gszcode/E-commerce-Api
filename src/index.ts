@@ -28,8 +28,10 @@ const server = app.listen(PORT, () => {
 // Routes
 import authRoute from './routes/auth.route'
 import userRoute from './routes/user.route'
+import contactRoute from './routes/contact.route'
 app.use('/api/v1/auth', authRoute)
 app.use('/api/v1/user', userRoute)
+app.use('/api/v1/contact', contactRoute)
 
 // Errors handle
 import { errorHandler } from './middlewares/error.handle'

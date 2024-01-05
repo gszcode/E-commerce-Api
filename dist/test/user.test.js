@@ -29,7 +29,7 @@ describe('My Account', () => {
         const token = responseLogin.body.token;
         const response = yield request
             .get(`${URL_USER}/account`)
-            .set('Authorization', `${token}`);
+            .set('Cookie', `token=${token}`);
         expect(response.status).toBe(200);
         expect(response.body.data.email).toBe('john.doe@example.com');
     }));
@@ -37,6 +37,7 @@ describe('My Account', () => {
         yield (0, registerUser_1.registerUser)();
         yield (0, loginUser_1.loginUser)('john.doe@example.com', 'password123');
         const response = yield request.get(`${URL_USER}/account`);
+        console.log('ACCOUNT ERROR', response.body);
         expect(response.status).toBe(401);
         expect(response.body.message).toBe('Authentication token is required');
     }));

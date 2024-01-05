@@ -70,7 +70,8 @@ const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
         };
         return res.status(200).json({
             message: 'Login successful',
-            user: userData
+            user: userData,
+            token
         });
     }
     catch (error) {
@@ -94,11 +95,8 @@ exports.logout = logout;
 const verifyToken = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         let { token } = req.cookies;
-        if (!token) {
-            return res
-                .status(401)
-                .json({ message: 'Authentication token is required' });
-        }
+        if (!token)
+            throw new error_interface_1.CustomError('Authentication token is required', 401);
         const { user } = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET);
         const userFound = yield User_schema_1.UserSchema.findOne({
             where: { email: user },
@@ -107,7 +105,7 @@ const verifyToken = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         return res.status(200).json({ data: userFound });
     }
     catch (error) {
-        return res.status(403).json({ message: 'Invalid token' });
+        next(error);
     }
 });
 exports.verifyToken = verifyToken;
