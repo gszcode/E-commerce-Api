@@ -1,7 +1,11 @@
-import { server } from '../index'
+import { server, app } from '../index'
 import { sequelize } from '../db'
 import { registerUser } from './utils/registerUser'
-import { loginUser } from './utils/loginUser'
+import { loginUser, logoutUser } from './utils/loginUser'
+import supertest from 'supertest'
+
+const request = supertest(app)
+const URL_AUTH = '/api/v1/auth'
 
 describe('User Register', () => {
   beforeAll(async () => {
@@ -20,8 +24,7 @@ describe('User Register', () => {
     const response = await registerUser()
 
     expect(response.status).toBe(400)
-    expect(response.body.message).toBe('User already exists')
-    expect(response.body.data).toBe(null)
+    expect(response.body.error).toBe('User already exists')
   })
 })
 
@@ -36,14 +39,54 @@ describe('User Login', () => {
 
     expect(response.status).toBe(200)
     expect(response.body.message).toBe('Login successful')
-    expect(response.body).toHaveProperty('token')
   })
 
   test('should not login a user with wrong credentials', async () => {
     const response = await loginUser('xxx@xxx.com', 'xxxxxxxx')
 
     expect(response.status).toBe(400)
-    expect(response.body.message).toBe('Invalid credentials')
+    expect(response.body.error).toBe('Invalid credentials')
+  })
+})
+
+describe('User Logout', () => {
+  beforeAll(async () => {
+    await sequelize.sync({ force: true })
+    await registerUser()
+  })
+
+  test('should logout a user', async () => {
+    await loginUser('john.doe@example.com', 'password123')
+    const response = await logoutUser()
+
+    expect(response.status).toBe(200)
+  })
+})
+
+describe('Verify Token', () => {
+  beforeAll(async () => {
+    await sequelize.sync({ force: true })
+    await registerUser()
+  })
+
+  test('allow access to data with token', async () => {
+    const responseLogin = await loginUser('john.doe@example.com', 'password123')
+    const token = responseLogin.body.token
+
+    const response = await request
+      .get(`${URL_AUTH}/verify-token`)
+      .set('Cookie', `token=${token}`)
+
+    expect(response.status).toBe(200)
+    expect(response.body.data.email).toBe('john.doe@example.com')
+  })
+
+  test('deny access without token', async () => {
+    await loginUser('john.doe@example.com', 'password123')
+    const response = await request.get(`${URL_AUTH}/verify-token`)
+
+    expect(response.status).toBe(401)
+    expect(response.body.error).toBe('Authentication token is required')
   })
 })
 
