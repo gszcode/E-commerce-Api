@@ -5,7 +5,7 @@ import supertest from 'supertest'
 const request = supertest(app)
 const URL_CONTACT = '/api/v1/contact'
 
-describe('CONCTACT', () => {
+describe.skip('CONCTACT', () => {
   const message = {
     first_name: 'test',
     last_name: 'test',

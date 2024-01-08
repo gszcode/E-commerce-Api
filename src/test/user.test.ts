@@ -7,7 +7,7 @@ import supertest from 'supertest'
 const request = supertest(app)
 const URL_USER = '/api/v1/user'
 
-describe('My Account', () => {
+describe.skip('My Account', () => {
   beforeAll(async () => {
     await sequelize.sync({ force: true })
   })

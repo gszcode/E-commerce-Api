@@ -90,6 +90,33 @@ describe('Verify Token', () => {
   })
 })
 
+describe('Forgot Password', () => {
+  beforeAll(async () => {
+    await sequelize.sync({ force: true })
+    await registerUser()
+  })
+
+  test('I should receive an email to change my password', async () => {
+    const response = await request
+      .post(`${URL_AUTH}/forgot-password`)
+      .send({ email: 'john.doe@example.com' })
+
+    expect(response.status).toBe(200)
+    expect(response.body.message).toBe(
+      'Revise su correo y verá un enlace para restablecer su contraseña.'
+    )
+  })
+
+  test('I should not receive an email with an invalid one', async () => {
+    const response = await request
+      .post(`${URL_AUTH}/forgot-password`)
+      .send({ email: 'jon.doe@example.com' })
+
+    expect(response.status).toBe(400)
+    expect(response.body.error).toBe('Email invalido')
+  })
+})
+
 afterAll(async () => {
   await sequelize.close()
   server.close()
