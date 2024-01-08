@@ -8,6 +8,7 @@ import generateAccessToken from '../utils/generateAccessToken'
 import { CustomError } from '../interfaces/error.interface'
 import { generateSecureCookie } from '../utils/generateSecureCookie'
 import jwt, { JwtPayload } from 'jsonwebtoken'
+import nodemailer from 'nodemailer'
 
 const register = async (req: Request, res: Response, next: NextFunction) => {
   const result = validationResult(req)
@@ -56,7 +57,7 @@ const login = async (req: Request, res: Response, next: NextFunction) => {
     )
     if (!passwordMatch) throw new CustomError('Invalid credentials', 400)
 
-    const token = generateAccessToken(email)
+    const token = generateAccessToken(email, '1d')
     generateSecureCookie(res, token)
 
     const userData = {
@@ -106,4 +107,109 @@ const verifyToken = async (req: Request, res: Response, next: NextFunction) => {
   }
 }
 
-export { register, login, logout, verifyToken }
+const forgotPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    let { email } = req.body
+    if (!email) throw new CustomError('Email invalido', 400)
+
+    const user = await UserSchema.findOne({ where: { email } })
+    if (!user) throw new CustomError('Email invalido', 400)
+
+    const token = generateAccessToken(email, '10m')
+    const verificationLink = `http://localhost:5173/recovery-password/${token}`
+
+    const {
+      NODEMAILER_HOST,
+      NODEMAILER_PORT,
+      NODEMAILER_USER,
+      NODEMAILER_PASS
+    } = process.env
+
+    const transporter = nodemailer.createTransport({
+      host: NODEMAILER_HOST,
+      port: parseInt(NODEMAILER_PORT!),
+      auth: {
+        user: process.env.NODEMAILER_USER,
+        pass: process.env.NODEMAILER_PASS
+      }
+    })
+
+    await transporter.sendMail({
+      from: 'imperio@shoes.com',
+      to: email,
+      subject: 'Recuperar Contraseña',
+      html: `<a href="${verificationLink}">Desde esté link podras actualizar tu contraseña</a>`
+    })
+
+    return res.status(200).json({
+      message:
+        'Revise su correo y verá un enlace para restablecer su contraseña.'
+    })
+  } catch (error) {
+    next(error)
+  }
+}
+
+const recoveryPassword = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  const { token } = req.params
+  const { password, repassword } = req.body
+
+  try {
+    if (!token) {
+      throw new Error('Token no proporcionado')
+    }
+
+    const { user: userEmail } = jwt.verify(
+      token,
+      process.env.JWT_SECRET!
+    ) as JwtPayload
+    if (!userEmail || !userEmail) {
+      throw new Error('Token no válido')
+    }
+
+    if (!password || password !== repassword) {
+      throw new Error('Las contraseñas no coinciden')
+    }
+
+    const user = await UserSchema.findOne({ where: { email: userEmail } })
+    if (!user) {
+      throw new Error('Usuario no encontrado')
+    }
+
+    const passwordHash = await bcrypt.hash(password, 10)
+    await UserSchema.update(
+      { password: passwordHash },
+      { where: { email: userEmail } }
+    )
+
+    return res.status(200).json({
+      message: 'Contraseña cambiada exitosamente'
+    })
+  } catch (error: any) {
+    if (
+      error.name === 'JsonWebTokenError' ||
+      error.name === 'TokenExpiredError'
+    ) {
+      return res.status(400).json({ message: 'Token no válido' })
+    }
+
+    return next(error)
+  }
+}
+
+export {
+  register,
+  login,
+  logout,
+  verifyToken,
+  forgotPassword,
+  recoveryPassword
+}
