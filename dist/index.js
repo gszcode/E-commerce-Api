@@ -16,9 +16,15 @@ exports.app = app;
 const PORT = process.env.PORT || 3001;
 // Middlewares
 app.use((0, cors_1.default)({
-    origin: 'http://localhost:5173',
+    origin: '*',
     credentials: true
 }));
+app.options('*', (req, res) => {
+    res.header('Access-Control-Allow-Origin', 'https://imperio-shoes.vercel.app');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+    res.send();
+});
 app.use(express_1.default.json());
 app.use((0, morgan_1.default)('dev'));
 app.use((0, cookie_parser_1.default)());

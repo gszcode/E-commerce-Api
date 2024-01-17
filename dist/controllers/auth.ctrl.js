@@ -119,7 +119,7 @@ const forgotPassword = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
         if (!user)
             throw new error_interface_1.CustomError('Email invalido', 400);
         const token = (0, generateAccessToken_1.default)(email, '10m');
-        const verificationLink = `http://localhost:5173/recovery-password/${token}`;
+        const verificationLink = `https://imperio-shoes.vercel.app/recovery-password/${token}`;
         const { NODEMAILER_HOST, NODEMAILER_PORT, NODEMAILER_USER, NODEMAILER_PASS } = process.env;
         const transporter = nodemailer_1.default.createTransport({
             host: NODEMAILER_HOST,
