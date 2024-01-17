@@ -12,7 +12,10 @@ const PORT = process.env.PORT || 3001
 // Middlewares
 app.use(
   cors({
-    origin: '*',
+    origin: [
+      'https://imperio-shoes.vercel.app',
+      'http://localhost:5173,origin'
+    ],
     credentials: true
   })
 )
