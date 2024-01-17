@@ -120,7 +120,7 @@ const forgotPassword = async (
     if (!user) throw new CustomError('Email invalido', 400)
 
     const token = generateAccessToken(email, '10m')
-    const verificationLink = `http://localhost:5173/recovery-password/${token}`
+    const verificationLink = `https://imperio-shoes.vercel.app/recovery-password/${token}`
 
     const {
       NODEMAILER_HOST,
