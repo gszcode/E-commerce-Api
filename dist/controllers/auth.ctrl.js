@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.verifyToken = exports.logout = exports.login = exports.register = void 0;
+exports.recoveryPassword = exports.forgotPassword = exports.verifyToken = exports.logout = exports.login = exports.register = void 0;
 const User_schema_1 = require("../models/User.schema");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const express_validator_1 = require("express-validator");
@@ -20,6 +20,7 @@ const generateAccessToken_1 = __importDefault(require("../utils/generateAccessTo
 const error_interface_1 = require("../interfaces/error.interface");
 const generateSecureCookie_1 = require("../utils/generateSecureCookie");
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const nodemailer_1 = __importDefault(require("nodemailer"));
 const register = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const result = (0, express_validator_1.validationResult)(req);
     if (!result.isEmpty()) {
@@ -60,7 +61,7 @@ const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
         const passwordMatch = yield bcrypt_1.default.compare(password, user.getDataValue('password'));
         if (!passwordMatch)
             throw new error_interface_1.CustomError('Invalid credentials', 400);
-        const token = (0, generateAccessToken_1.default)(email);
+        const token = (0, generateAccessToken_1.default)(email, '1d');
         (0, generateSecureCookie_1.generateSecureCookie)(res, token);
         const userData = {
             username: user.getDataValue('username'),
@@ -109,3 +110,70 @@ const verifyToken = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
     }
 });
 exports.verifyToken = verifyToken;
+const forgotPassword = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        let { email } = req.body;
+        if (!email)
+            throw new error_interface_1.CustomError('Email invalido', 400);
+        const user = yield User_schema_1.UserSchema.findOne({ where: { email } });
+        if (!user)
+            throw new error_interface_1.CustomError('Email invalido', 400);
+        const token = (0, generateAccessToken_1.default)(email, '10m');
+        const verificationLink = `http://localhost:5173/recovery-password/${token}`;
+        const { NODEMAILER_HOST, NODEMAILER_PORT, NODEMAILER_USER, NODEMAILER_PASS } = process.env;
+        const transporter = nodemailer_1.default.createTransport({
+            host: NODEMAILER_HOST,
+            port: parseInt(NODEMAILER_PORT),
+            auth: {
+                user: process.env.NODEMAILER_USER,
+                pass: process.env.NODEMAILER_PASS
+            }
+        });
+        yield transporter.sendMail({
+            from: 'imperio@shoes.com',
+            to: email,
+            subject: 'Recuperar Contraseña',
+            html: `<a href="${verificationLink}">Desde esté link podras actualizar tu contraseña</a>`
+        });
+        return res.status(200).json({
+            message: 'Revise su correo y verá un enlace para restablecer su contraseña.'
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+});
+exports.forgotPassword = forgotPassword;
+const recoveryPassword = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const { token } = req.params;
+    const { password, repassword } = req.body;
+    try {
+        if (!token) {
+            throw new Error('Token no proporcionado');
+        }
+        const { user: userEmail } = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET);
+        if (!userEmail || !userEmail) {
+            throw new Error('Token no válido');
+        }
+        if (!password || password !== repassword) {
+            throw new Error('Las contraseñas no coinciden');
+        }
+        const user = yield User_schema_1.UserSchema.findOne({ where: { email: userEmail } });
+        if (!user) {
+            throw new Error('Usuario no encontrado');
+        }
+        const passwordHash = yield bcrypt_1.default.hash(password, 10);
+        yield User_schema_1.UserSchema.update({ password: passwordHash }, { where: { email: userEmail } });
+        return res.status(200).json({
+            message: 'Contraseña cambiada exitosamente'
+        });
+    }
+    catch (error) {
+        if (error.name === 'JsonWebTokenError' ||
+            error.name === 'TokenExpiredError') {
+            return res.status(400).json({ message: 'Token no válido' });
+        }
+        return next(error);
+    }
+});
+exports.recoveryPassword = recoveryPassword;

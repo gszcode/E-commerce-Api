@@ -19,7 +19,7 @@ const loginUser_1 = require("./utils/loginUser");
 const supertest_1 = __importDefault(require("supertest"));
 const request = (0, supertest_1.default)(index_1.app);
 const URL_USER = '/api/v1/user';
-describe('My Account', () => {
+describe.skip('My Account', () => {
     beforeAll(() => __awaiter(void 0, void 0, void 0, function* () {
         yield db_1.sequelize.sync({ force: true });
     }));

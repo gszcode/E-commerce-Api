@@ -83,6 +83,26 @@ describe('Verify Token', () => {
         expect(response.body.error).toBe('Authentication token is required');
     }));
 });
+describe('Forgot Password', () => {
+    beforeAll(() => __awaiter(void 0, void 0, void 0, function* () {
+        yield db_1.sequelize.sync({ force: true });
+        yield (0, registerUser_1.registerUser)();
+    }));
+    test('I should receive an email to change my password', () => __awaiter(void 0, void 0, void 0, function* () {
+        const response = yield request
+            .post(`${URL_AUTH}/forgot-password`)
+            .send({ email: 'john.doe@example.com' });
+        expect(response.status).toBe(200);
+        expect(response.body.message).toBe('Revise su correo y verá un enlace para restablecer su contraseña.');
+    }));
+    test('I should not receive an email with an invalid one', () => __awaiter(void 0, void 0, void 0, function* () {
+        const response = yield request
+            .post(`${URL_AUTH}/forgot-password`)
+            .send({ email: 'jon.doe@example.com' });
+        expect(response.status).toBe(400);
+        expect(response.body.error).toBe('Email invalido');
+    }));
+});
 afterAll(() => __awaiter(void 0, void 0, void 0, function* () {
     yield db_1.sequelize.close();
     index_1.server.close();

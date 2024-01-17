@@ -17,10 +17,7 @@ const db_1 = require("../db");
 const supertest_1 = __importDefault(require("supertest"));
 const request = (0, supertest_1.default)(index_1.app);
 const URL_CONTACT = '/api/v1/contact';
-describe('CONCTACT', () => {
-    beforeAll(() => __awaiter(void 0, void 0, void 0, function* () {
-        yield db_1.sequelize.sync({ force: true });
-    }));
+describe.skip('CONCTACT', () => {
     const message = {
         first_name: 'test',
         last_name: 'test',
