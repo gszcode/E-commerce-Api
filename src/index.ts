@@ -12,12 +12,18 @@ const PORT = process.env.PORT || 3001
 // Middlewares
 app.use(
   cors({
-    origin: '*',
+    origin: [
+      'https://imperio-shoes.vercel.app',
+      'https://imperio-shoes-q2ax7lvv1-gszcode.vercel.app'
+    ],
     credentials: true
   })
 )
 app.options('*', (req, res) => {
-  res.header('Access-Control-Allow-Origin', 'https://imperio-shoes.vercel.app')
+  res.header('Access-Control-Allow-Origin', [
+    'https://imperio-shoes.vercel.app',
+    'https://imperio-shoes-q2ax7lvv1-gszcode.vercel.app'
+  ])
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE')
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
   res.send()
