@@ -13,7 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.recoveryPassword = exports.forgotPassword = exports.verifyToken = exports.logout = exports.login = exports.register = void 0;
-const User_schema_1 = require("../models/User.schema");
+const User_1 = require("../models/User");
 const bcrypt_1 = __importDefault(require("bcrypt"));
 const express_validator_1 = require("express-validator");
 const generateAccessToken_1 = __importDefault(require("../utils/generateAccessToken"));
@@ -30,11 +30,11 @@ const register = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
     }
     const { first_name, last_name, username, email, password } = req.body;
     try {
-        let user = yield User_schema_1.UserSchema.findOne({ where: { email } });
+        let user = yield User_1.UserSchema.findOne({ where: { email } });
         if (user)
             throw new error_interface_1.CustomError('User already exists', 400);
         const passwordHash = yield bcrypt_1.default.hash(password, 10);
-        user = yield User_schema_1.UserSchema.create({
+        user = yield User_1.UserSchema.create({
             first_name,
             last_name,
             username,
@@ -53,7 +53,7 @@ exports.register = register;
 const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = req.body;
     try {
-        const user = yield User_schema_1.UserSchema.findOne({
+        const user = yield User_1.UserSchema.findOne({
             where: { email }
         });
         if (!user)
@@ -99,7 +99,7 @@ const verifyToken = (req, res, next) => __awaiter(void 0, void 0, void 0, functi
         if (!token)
             throw new error_interface_1.CustomError('Authentication token is required', 401);
         const { user } = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET);
-        const userFound = yield User_schema_1.UserSchema.findOne({
+        const userFound = yield User_1.UserSchema.findOne({
             where: { email: user },
             attributes: { exclude: ['id', 'password', 'createdAt', 'updatedAt'] }
         });
@@ -115,7 +115,7 @@ const forgotPassword = (req, res, next) => __awaiter(void 0, void 0, void 0, fun
         let { email } = req.body;
         if (!email)
             throw new error_interface_1.CustomError('Email invalido', 400);
-        const user = yield User_schema_1.UserSchema.findOne({ where: { email } });
+        const user = yield User_1.UserSchema.findOne({ where: { email } });
         if (!user)
             throw new error_interface_1.CustomError('Email invalido', 400);
         const token = (0, generateAccessToken_1.default)(email, '10m');
@@ -158,12 +158,12 @@ const recoveryPassword = (req, res, next) => __awaiter(void 0, void 0, void 0, f
         if (!password || password !== repassword) {
             throw new Error('Las contraseñas no coinciden');
         }
-        const user = yield User_schema_1.UserSchema.findOne({ where: { email: userEmail } });
+        const user = yield User_1.UserSchema.findOne({ where: { email: userEmail } });
         if (!user) {
             throw new Error('Usuario no encontrado');
         }
         const passwordHash = yield bcrypt_1.default.hash(password, 10);
-        yield User_schema_1.UserSchema.update({ password: passwordHash }, { where: { email: userEmail } });
+        yield User_1.UserSchema.update({ password: passwordHash }, { where: { email: userEmail } });
         return res.status(200).json({
             message: 'Contraseña cambiada exitosamente'
         });

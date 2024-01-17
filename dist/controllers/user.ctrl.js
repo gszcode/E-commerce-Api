@@ -10,10 +10,10 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.account = void 0;
-const User_schema_1 = require("../models/User.schema");
+const User_1 = require("../models/User");
 const account = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const user = yield User_schema_1.UserSchema.findOne({
+        const user = yield User_1.UserSchema.findOne({
             where: { email: req['email'] },
             attributes: { exclude: ['id', 'password', 'createdAt', 'updatedAt'] }
         });
