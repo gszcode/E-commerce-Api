@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
-import { UserSchema } from '../models/User.schema'
+import { UserSchema } from '../models/User'
 
 const account = async (req: Request, res: Response, next: NextFunction) => {
   try {

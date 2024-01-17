@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
-import { UserSchema } from '../models/User.schema'
+import { UserSchema } from '../models/User'
 import { User } from '../interfaces/user.interface'
 import bcrypt from 'bcrypt'
 import { Auth } from '../interfaces/auth.interface'
