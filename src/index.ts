@@ -14,7 +14,8 @@ app.use(
   cors({
     origin: [
       'https://imperio-shoes.vercel.app',
-      'https://imperio-shoes-q2ax7lvv1-gszcode.vercel.app'
+      'https://imperio-shoes-q2ax7lvv1-gszcode.vercel.app',
+      'http://localhost:5173'
     ],
     credentials: true
   })
@@ -22,7 +23,8 @@ app.use(
 app.options('*', (req, res) => {
   res.header('Access-Control-Allow-Origin', [
     'https://imperio-shoes.vercel.app',
-    'https://imperio-shoes-q2ax7lvv1-gszcode.vercel.app'
+    'https://imperio-shoes-q2ax7lvv1-gszcode.vercel.app',
+    'http://localhost:5173'
   ])
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE')
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization')

@@ -16,21 +16,29 @@ exports.app = app;
 const PORT = process.env.PORT || 3001;
 // Middlewares
 app.use((0, cors_1.default)({
-    origin: [
-        'https://imperio-shoes.vercel.app',
-        'https://imperio-shoes-q2ax7lvv1-gszcode.vercel.app'
-    ],
+    origin: 'http://localhost:5173',
     credentials: true
 }));
-app.options('*', (req, res) => {
-    res.header('Access-Control-Allow-Origin', [
-        'https://imperio-shoes.vercel.app',
-        'https://imperio-shoes-q2ax7lvv1-gszcode.vercel.app'
-    ]);
-    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
-    res.send();
-});
+// app.use(
+//   cors({
+//     origin: [
+//       'https://imperio-shoes.vercel.app',
+//       'https://imperio-shoes-q2ax7lvv1-gszcode.vercel.app',
+//       'http://localhost:5173'
+//     ],
+//     credentials: true
+//   })
+// )
+// app.options('*', (req, res) => {
+//   res.header('Access-Control-Allow-Origin', [
+//     'https://imperio-shoes.vercel.app',
+//     'https://imperio-shoes-q2ax7lvv1-gszcode.vercel.app',
+//     'http://localhost:5173'
+//   ])
+//   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE')
+//   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+//   res.send()
+// })
 app.use(express_1.default.json());
 app.use((0, morgan_1.default)('dev'));
 app.use((0, cookie_parser_1.default)());
